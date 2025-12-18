@@ -1,17 +1,41 @@
-version: '3.8'
+version: '3.9'
 
 services:
-  postgres:
+  blog-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fepa_blog_service
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      DATABASE_URL: postgres://blog_user:blog_password@blog-db:5432/fepa_blog?schema=public
+    depends_on:
+      blog-db:
+        condition: service_healthy
+    ports:
+      - '3004:3004'
+    command: >-
+      sh -c "npx prisma migrate deploy && node dist/main"
+    restart: unless-stopped
+
+  blog-db:
     image: postgres:17-alpine
     container_name: fepa_blog_db
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
       POSTGRES_DB: fepa_blog
+      POSTGRES_USER: blog_user
+      POSTGRES_PASSWORD: blog_password
+    volumes:
+      - blog-db-data:/var/lib/postgresql/data
     ports:
       - '5434:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U blog_user -d fepa_blog']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -22,7 +46,8 @@ services:
     ports:
       - '5051:80'
     depends_on:
-      - postgres
+      blog-db:
+        condition: service_started
 
 volumes:
-  postgres_data:
+  blog-db-data:
