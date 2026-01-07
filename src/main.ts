@@ -26,6 +26,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.listen();
-  console.log(`🚀 Blog Microservice is listening on RabbitMQ queue: blog_queue`);
+  console.log(
+    `🚀 Blog Microservice is listening on RabbitMQ queue: blog_queue`,
+  );
 }
 bootstrap();
