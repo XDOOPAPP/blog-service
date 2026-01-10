@@ -1,98 +1,157 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Blog Service - Community Blog Platform
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Service quản lý blog với tính năng community-driven: users tạo blog, upload ảnh, admin duyệt bài.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## ✨ Tính năng
 
-## Description
+- **👥 Community Blog**: Tất cả users có thể tạo blog
+- **🖼️ Image Upload**: Upload thumbnail + multiple images (max 5MB)
+- **📝 Workflow**: Draft → Pending → Published/Rejected
+- **👨‍💼 Admin Moderation**: Approve/Reject với lý do
+- **💾 Volume Storage**: Images persist trong Docker volume
+- **🔒 Authorization**: User chỉ edit/delete blog của mình
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Quick Start
 
-## Project setup
+```powershell
+# 1. Start infrastructure
+cd deployment
+docker-compose up -d
 
-```bash
-$ npm install
+# 2. Start API Gateway
+cd ../api-gateway
+docker-compose up -d
+
+# 3. Start Blog Service (auto install + migrate)
+cd ../blog-service
+docker-compose up -d --build
 ```
 
-## Compile and run the project
+> **💡 Lưu ý**: Dockerfile tự động chạy `npm install` và `prisma migrate deploy`
 
-```bash
-# development
-$ npm run start
+## 📊 Workflow
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```
+User tạo blog (draft) → Edit nhiều lần → Submit (pending)
+                                              ↓
+                                    Admin approve → Published
+                                    Admin reject → Rejected
 ```
 
-## Run tests
+## 🔗 API Endpoints
 
-```bash
-# unit tests
-$ npm run test
+### User
+- `POST /blogs` - Tạo blog
+- `POST /blogs/upload/single` - Upload ảnh
+- `POST /blogs/:id/submit` - Submit for review
+- `GET /blogs/my-blogs` - Blogs của mình
+- `PATCH /blogs/:id` - Update (draft only)
+- `DELETE /blogs/:id` - Delete
 
-# e2e tests
-$ npm run test:e2e
+### Admin
+- `POST /blogs/:id/approve` - Approve
+- `POST /blogs/:id/reject` - Reject
+- `GET /blogs?status=pending` - Pending blogs
 
-# test coverage
-$ npm run test:cov
+### Public
+- `GET /blogs?status=published` - Published blogs
+- `GET /blogs/slug/:slug` - Get by slug
+
+## 📚 Documentation
+
+- **TEST_GUIDE_SIMPLE.md** - Hướng dẫn test từ clone code
+- **IMPLEMENTATION_SUMMARY.md** - Chi tiết implementation
+- **Blog-Service.postman_collection.json** - Postman collection
+
+## 🛠️ Tech Stack
+
+- **NestJS** - Framework
+- **Prisma** - ORM
+- **PostgreSQL** - Database
+- **RabbitMQ** - Message queue
+- **Docker** - Containerization
+- **Multer** - File upload
+
+## 🔧 Environment Variables
+
+```env
+PORT=3004
+DATABASE_URL=postgresql://fepa:fepa123@fepa-postgres:5432/fepa_blog
+RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
+UPLOAD_DIR=/app/uploads
 ```
 
-## Deployment
+## 📝 Database Schema
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```prisma
+enum BlogStatus {
+  draft
+  pending
+  published
+  rejected
+}
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+model Blog {
+  id              String     @id @default(uuid())
+  userId          String     // User tạo blog
+  title           String
+  slug            String     @unique
+  content         String
+  thumbnailUrl    String?
+  images          String[]   @default([])
+  status          BlogStatus @default(draft)
+  rejectionReason String?
+  publishedAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🐛 Troubleshooting
 
-## Resources
+```powershell
+# Check logs
+docker logs blog-service
 
-Check out a few resources that may come in handy when working with NestJS:
+# Check database
+docker exec -it fepa-postgres psql -U fepa -d fepa_blog
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Rebuild if schema changed
+docker-compose up -d --build
 
-## Support
+# Check volume
+docker volume inspect blog-uploads
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 📦 Ports
 
-## Stay in touch
+- **3004** - Blog Service (microservice)
+- **3000** - API Gateway (test qua đây)
+- **5432** - PostgreSQL
+- **5672** - RabbitMQ
+- **15672** - RabbitMQ Management UI
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🎯 Test Quick
 
-## License
+```bash
+# Login
+curl -X POST http://localhost:3000/api/v1/user/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@fepa.com","password":"admin123"}'
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# Upload image
+curl -X POST http://localhost:3000/blogs/upload/single \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@image.jpg"
+
+# Create blog
+curl -X POST http://localhost:3000/blogs \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Test","slug":"test","content":"Content","status":"draft"}'
+```
+
+## 📖 Xem thêm
+
+- [TEST_GUIDE_SIMPLE.md](./TEST_GUIDE_SIMPLE.md) - Hướng dẫn chi tiết
+- [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) - Technical details

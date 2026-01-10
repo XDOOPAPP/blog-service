@@ -1,0 +1,415 @@
+{
+    "info": {
+        "name": "Blog Service - Community Blog",
+        "description": "API collection for testing community blog features",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "userToken",
+            "value": "your-user-jwt-token",
+            "type": "string"
+        },
+        {
+            "key": "adminToken",
+            "value": "your-admin-jwt-token",
+            "type": "string"
+        },
+        {
+            "key": "blogId",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Upload",
+            "item": [
+                {
+                    "name": "Upload Single Image",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "file",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/upload/single",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "upload",
+                                "single"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Multiple Images",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "files",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "files",
+                                    "type": "file",
+                                    "src": []
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/upload/multiple",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "upload",
+                                "multiple"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User - Blog Management",
+            "item": [
+                {
+                    "name": "Create Blog (Draft)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"10 Mẹo Tiết Kiệm Tiền Hiệu Quả\",\n  \"slug\": \"10-meo-tiet-kiem-tien-hieu-qua\",\n  \"content\": \"Nội dung chi tiết về các mẹo tiết kiệm tiền...\",\n  \"thumbnailUrl\": \"/uploads/example.jpg\",\n  \"images\": [\"/uploads/image1.jpg\", \"/uploads/image2.jpg\"],\n  \"author\": \"Nguyễn Văn A\",\n  \"status\": \"draft\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get My Blogs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/my-blogs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "my-blogs"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Blog (Draft Only)",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"15 Mẹo Tiết Kiệm Tiền Hiệu Quả (Updated)\",\n  \"content\": \"Updated content...\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit for Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}/submit",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}",
+                                "submit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Blog",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{userToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Admin - Moderation",
+            "item": [
+                {
+                    "name": "Get Pending Blogs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs?status=pending",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "pending"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Approve Blog",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}/approve",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}",
+                                "approve"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Reject Blog",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{adminToken}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"rejectionReason\": \"Nội dung không phù hợp với chủ đề tài chính\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}/reject",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}",
+                                "reject"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Public",
+            "item": [
+                {
+                    "name": "Get All Blogs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Published Blogs",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs?status=published",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "published"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blog by Slug",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/slug/10-meo-tiet-kiem-tien-hieu-qua",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "slug",
+                                "10-meo-tiet-kiem-tien-hieu-qua"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blog by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/blogs/{{blogId}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "blogs",
+                                "{{blogId}}"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

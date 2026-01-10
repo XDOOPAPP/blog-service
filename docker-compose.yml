@@ -15,14 +15,18 @@ services:
       - RABBITMQ_URL=amqp://fepa:fepa123@fepa-rabbitmq:5672
       - JWT_SECRET=${JWT_SECRET:-fepa-key}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-7d}
+      - UPLOAD_DIR=/app/uploads
     restart: on-failure
     networks:
       - fepa-network
-    # volumes:
-    #   - .:/app
-    #   - /app/node_modules
+    volumes:
+      - blog-uploads:/app/uploads
 
 networks:
   fepa-network:
     name: fepa-network
     external: true
+
+volumes:
+  blog-uploads:
+    name: blog-uploads

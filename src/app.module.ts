@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BlogModule } from './blog/blog.module';
+import { UploadModule } from './upload/upload.module';
 
 
 @Module({
@@ -11,6 +12,7 @@ import { BlogModule } from './blog/blog.module';
       isGlobal: true,
     }),
     BlogModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

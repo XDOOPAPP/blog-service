@@ -7,14 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BlogStatus {
+  draft // User đang viết
+  pending // Chờ admin duyệt
+  published // Đã được duyệt và publish
+  rejected // Bị từ chối
+}
+
 model Blog {
-  id          String    @id @default(uuid()) @db.Uuid
-  title       String
-  slug        String    @unique
-  content     String    @db.Text
-  status      String    @default("published")
-  author      String?   @db.Text
-  publishedAt DateTime?
-  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+  id              String     @id @default(uuid()) @db.Uuid
+  userId          String // User tạo blog (MongoDB ObjectId từ auth-service)
+  title           String
+  slug            String     @unique
+  content         String     @db.Text
+  thumbnailUrl    String? // Ảnh đại diện
+  images          String[]   @default([]) // Mảng URLs của images trong content
+  status          BlogStatus @default(draft)
+  author          String?    @db.Text // Tên hiển thị của author
+  rejectionReason String?    @db.Text // Lý do từ chối (nếu rejected)
+  publishedAt     DateTime? // Thời điểm được publish
+  createdAt       DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime   @updatedAt @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([status])
 }
